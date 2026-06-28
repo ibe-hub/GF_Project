@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenfield Project Management Dashboard</title>
+    <!-- Tailwind CSS for Dark Premium UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for High Fidelity Graphics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS to Parse Excel Data Sources safely -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+        }
+        .custom-card {
+            background: linear-gradient(145deg, #131b2e, #111827);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glow-green { text-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
+        .glow-blue { text-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #22d3ee50; border-radius: 3px; }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen pb-12 relative">
+
+    <!-- Premium Dark UI Gateway Login Portal Interface -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-[#0b0f19] px-4 fixed inset-0 z-50">
+        <div class="custom-card w-full max-w-md p-8 rounded-2xl shadow-2xl border border-gray-800/80">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl mb-4 border border-blue-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Greenfield Portfolio Access</h2>
+                <p class="text-xs text-gray-400 mt-1">PT Air Bersih Jakarta — Internal Strategic Console</p>
+            </div>
+
+            <form onsubmit="handleAuthGateCheck(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Username</label>
+                    <input type="text" id="authUsername" required placeholder="Enter administration identity"
+                           class="w-full bg-[#172033] border border-gray-700 rounded-lg text-sm px-4 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 placeholder-gray-600 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Security Password</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••••••"
+                           class="w-full bg-[#172033] border border-gray-700 rounded-lg text-sm px-4 py-2.5 text-gray-200 focus:outline-none focus:border-cyan-500 placeholder-gray-600 transition">
+                </div>
+
+                <div id="loginError" class="text-xs text-rose-400 font-medium hidden bg-rose-950/20 border border-rose-900/40 rounded-lg p-2.5 text-center">
+                    Invalid signature matches. Authentication verification failed.
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-3 px-4 rounded-lg transition shadow-lg shadow-blue-950/50 uppercase tracking-widest mt-2">
+                    Verify Credentials
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Protected Portfolio Contents -->
+    <div id="dashboardContainer" class="hidden">
+        <!-- Top Navigation Header -->
+        <header class="border-b border-gray-800 bg-[#0e1424] px-4 py-4 md:px-8 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 sticky top-0 z-40 shadow-md">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    <span class="w-3 h-6 bg-blue-500 rounded-sm inline-block shrink-0"></span>
+                    Greenfield Consolidated Portfolio Dashboard
+                </h1>
+                <p class="text-xs text-gray-400 mt-0.5">PT Air Bersih Jakarta — Strategic Capital Infrastructure Analytics</p>
+            </div>
+            
+            <!-- Interactive Controls Console Area -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-4 flex-1 xl:flex-none justify-end">
+                
+                <!-- Realtime Global Table Filter Search Bar Wrapper Block -->
+                <div class="relative w-full sm:w-80 flex flex-col">
+                    <label class="text-xs text-gray-400 mb-1 font-semibold tracking-wide">Search Portfolio Records</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </span>
+                        <input type="text" id="globalTableSearch" oninput="applyFilters()" placeholder="Use commas for OR logic (Pesanggrahan, TMPSG)..." 
+                               class="w-full bg-[#172033] border border-gray-700 rounded-lg text-xs pl-9 pr-3 h-[38px] text-gray-200 focus:outline-none focus:border-cyan-500 placeholder-gray-500 transition">
+                    </div>
+                </div>
+
+                <!-- Fallback Manual Data Refresh Picker -->
+                <div class="relative w-full sm:w-72 flex flex-col">
+                    <label class="text-xs text-gray-400 mb-1 font-semibold tracking-wide">Manual Source Override (Optional)</label>
+                    <input type="file" id="excelFiles" multiple accept=".xlsx, .xls, .csv" onchange="processUploadedFiles()"
+                           class="text-xs text-gray-400 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer bg-[#172033] rounded-lg p-1 border border-gray-700 w-full h-[38px]">
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Main Frame Area -->
+        <main class="max-w-[1600px] mx-auto px-4 md:px-6 mt-6">
+            
+            <!-- System Loading/Status Indicator Notification Banner -->
+            <div id="asyncLoaderStatus" class="hidden p-3.5 mb-6 rounded-xl border font-semibold text-xs transition duration-200"></div>
+
+            <!-- Interactive Filter Slicers Bar -->
+            <div class="custom-card rounded-xl p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:flex xl:flex-wrap gap-4 items-center">
+                <div class="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-1">
+                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Data Slicers:
+                </div>
+                <div class="w-full xl:w-64">
+                    <select id="slicerProyek" onchange="applyFilters()" class="w-full bg-[#172033] border border-gray-700 rounded-lg text-sm px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
+                        <option value="ALL">-- Semua Proyek --</option>
+                    </select>
+                </div>
+                <div class="w-full xl:w-60">
+                    <select id="slicerKategori" onchange="applyFilters()" class="w-full bg-[#172033] border border-gray-700 rounded-lg text-sm px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
+                        <option value="ALL">-- Semua Kategori --</option>
+                    </select>
+                </div>
+                <div class="w-full xl:w-48">
+                    <select id="slicerTOK" onchange="applyFilters()" class="w-full bg-[#172033] border border-gray-700 rounded-lg text-sm px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
+                        <option value="ALL">-- Semua Jadwal TOK --</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center gap-2 border-t sm:border-t-0 xl:border-l border-gray-800 pt-3 sm:pt-0 xl:pl-6 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-1">
+                    <input type="checkbox" id="excludeCancelled" onchange="applyFilters()"
+                           class="w-4 h-4 rounded text-blue-600 bg-gray-900 border-gray-700 focus:ring-blue-500 focus:ring-2">
+                    <label for="excludeCancelled" class="text-xs font-semibold text-gray-300 cursor-pointer select-none">
+                        Sembunyikan Proyek BATAL / CANCEL
+                    </label>
+                </div>
+
+                <div class="text-xs text-gray-400 mt-2 xl:mt-0 xl:ml-auto text-right w-full xl:w-auto" id="rowCountLabel">Showing: 0 / 0 Records</div>
+            </div>
+
+            <!-- Row 1: Primary Progress & Financial Highlight Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+                <div class="custom-card p-5 rounded-xl flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Volume Rencana (m)</span>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span id="metricVolRencana" class="text-3xl font-bold text-white glow-blue">0</span>
+                        <span class="text-sm text-gray-400">m</span>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-gray-800/60 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-medium">Volume MC-0 (m):</span>
+                        <span id="subMetricVolMC0" class="text-sm font-bold text-indigo-400">0 m</span>
+                    </div>
+                </div>
+
+                <div class="custom-card p-5 rounded-xl flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Volume Aktual (m)</span>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span id="metricVolAktual" class="text-3xl font-bold text-emerald-400 glow-green">0</span>
+                        <span class="text-sm text-gray-400">m</span>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-gray-800/60 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-medium">Calculated Progress from MC-0:</span>
+                        <span id="metricVolProg" class="text-sm font-bold text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-900/50">0%</span>
+                    </div>
+                </div>
+
+                <div class="custom-card p-5 rounded-xl flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Nilai RAB Jaringan</span>
+                    <div class="mt-2">
+                        <span id="metricRAB" class="text-2xl font-bold text-amber-400">Rp 0 Juta</span>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-gray-800/60 flex justify-between items-center flex-wrap gap-1">
+                        <span class="text-xs text-gray-400 font-medium">Nilai VOWD:</span>
+                        <div class="flex items-center gap-1.5 ml-auto sm:ml-0">
+                            <span id="metricVOWD" class="text-sm font-bold text-purple-400">Rp 0 Juta</span>
+                            <span id="metricVOWDPercentage" class="text-[10px] font-semibold text-purple-300 bg-purple-950/50 px-1.5 py-0.5 rounded">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-card p-5 rounded-xl flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Nilai RNA</span>
+                    <div class="mt-2">
+                        <span id="metricRNA" class="text-2xl font-bold text-cyan-400">Rp 0 Juta</span>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-gray-800/60 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-medium">% progress to RAB:</span>
+                        <span id="metricRNAPercentage" class="text-sm font-bold text-cyan-300 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-900/40">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Secondary Interactive Status Counters -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3 mb-6">
+                <div id="box-1" onclick="openStatusPopup('ALL')" class="custom-card p-3 rounded-xl text-center border border-gray-800 bg-[#0e1424] cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg">
+                    <div class="text-[10px] uppercase font-bold text-gray-400 tracking-wider truncate">Total Projects</div>
+                    <div id="cntTotal" class="text-xl font-extrabold mt-1 text-white">0</div>
+                </div>
+                <div id="box-2" onclick="openStatusPopup('BATAL')" class="custom-card p-3 rounded-xl text-center border border-rose-900/50 bg-rose-950/20 cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg">
+                    <div class="text-[10px] uppercase font-bold text-rose-400 tracking-wider truncate">Batal / Cancel</div>
+                    <div id="cntBatal" class="text-xl font-extrabold mt-1 text-rose-400">0</div>
+                </div>
+                <div id="box-3" onclick="openStatusPopup('PREP')" class="custom-card p-3 rounded-xl text-center border border-blue-900/50 bg-blue-950/20 cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg">
+                    <div class="text-[10px] uppercase font-bold text-blue-400 tracking-wider truncate">Preparation</div>
+                    <div id="cntPrep" class="text-xl font-extrabold mt-1 text-blue-400">0</div>
+                </div>
+                <div id="box-4" onclick="openStatusPopup('MC0')" class="custom-card p-3 rounded-xl text-center border border-indigo-900/50 bg-indigo-950/10 cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg">
+                    <div class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider truncate">MC-0 Status</div>
+                    <div id="cntMC0" class="text-xl font-extrabold mt-1 text-indigo-400">0</div>
+                </div>
+                <div id="box-5" onclick="openStatusPopup('ONGOING')" class="custom-card p-3 rounded-xl text-center border border-amber-900/50 bg-amber-950/10 cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg">
+                    <div class="text-[10px] uppercase font-bold text-amber-400 tracking-wider truncate">Ongoing Const.</div>
+                    <div id="cntOngoing" class="text-xl font-extrabold mt-1 text-amber-400">0</div>
+                </div>
+                <div id="box-6" onclick="openStatusPopup('FINISHED')" class="custom-card p-3 rounded-xl text-center border border-emerald-900/50 bg-emerald-950/10 cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg">
+                    <div class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider truncate">Finished Const.</div>
+                    <div id="cntFinished" class="text-xl font-extrabold mt-1 text-emerald-400">0</div>
+                </div>
+                <div id="box-7" onclick="openStatusPopup('MC100')" class="custom-card p-3 rounded-xl text-center border border-purple-900/50 bg-purple-950/10 cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg">
+                    <div class="text-[10px] uppercase font-bold text-purple-400 tracking-wider truncate">MC-100 Status</div>
+                    <div id="cntMC100" class="text-xl font-extrabold mt-1 text-purple-400">0</div>
+                </div>
+                
+                <!-- Box 8: DPPP Performance Target Counters -->
+                <div id="box-8" onclick="openStatusPopup('DPPP')" class="custom-card p-3 rounded-xl text-center border border-cyan-900/50 bg-cyan-950/10 cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider truncate">DPPP Submission</div>
+                        <div id="cntDPPP" class="text-xl font-extrabold mt-1 text-cyan-400">0</div>
+                    </div>
+                    <div class="mt-2 flex justify-between gap-1 text-[10px] font-semibold pt-1.5 border-t border-cyan-900/30 text-gray-400 select-none">
+                        <div class="text-center flex-1" title="DPPP Submit Date &le; Excel Cell Target Date">
+                            <span class="block text-emerald-400 font-extrabold text-sm mb-0.5" id="subDpppOnTime">0</span>&le;TOK
+                        </div>
+                        <div class="text-center flex-1" title="DPPP Submit Date Delayed &le; 90 Days from Cell Target Date">
+                            <span class="block text-amber-400 font-extrabold text-sm mb-0.5" id="subDpppDelay90">0</span>&le;90d
+                        </div>
+                        <div class="text-center flex-1" title="DPPP Submit Date Delayed &gt; 90 Days from Cell Target Date">
+                            <span class="block text-rose-400 font-extrabold text-sm mb-0.5" id="subDpppDelayOver90">0</span>&gt;90d
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphic Analytics Grid Rows -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="custom-card p-4 md:p-5 rounded-xl">
+                    <h3 class="text-sm font-bold text-gray-200 mb-4">Volume Target vs Aktual per Proyek (m)</h3>
+                    <div class="h-64 sm:h-80 w-full relative">
+                        <canvas id="chartVolume"></canvas>
+                    </div>
+                </div>
+                <div class="custom-card p-4 md:p-5 rounded-xl">
+                    <h3 class="text-sm font-bold text-gray-200 mb-4">Finansial Portfolio per Proyek (Juta Rp)</h3>
+                    <div class="h-64 sm:h-80 w-full relative">
+                        <canvas id="chartFinancial"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Log Data Table Grid -->
+            <div class="custom-card rounded-xl overflow-hidden shadow-2xl">
+                <div class="px-6 py-4 border-b border-gray-800 bg-[#161f33]">
+                    <h3 class="text-sm font-bold text-gray-200">Consolidated Greenfield Master Log Records</h3>
+                </div>
+                <div class="overflow-x-auto max-h-[600px]">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-[#0e1424] text-gray-300 uppercase tracking-wider font-semibold border-b border-gray-800 sticky top-0 z-10">
+                                <th onclick="sortMainTable('proyek')" class="p-3.5 min-w-[130px] cursor-pointer hover:bg-gray-800/50 select-none transition">Proyek <span id="main-sort-proyek">↕</span></th>
+                                <th onclick="sortMainTable('rawTokDate')" class="p-3.5 min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">Jadwal TOK <span id="main-sort-rawTokDate">↕</span></th>
+                                <th onclick="sortMainTable('schedule')" class="p-3.5 min-w-[120px] cursor-pointer hover:bg-gray-800/50 select-none transition">Kategori <span id="main-sort-schedule">↕</span></th>
+                                <th onclick="sortMainTable('subProyek')" class="p-3.5 min-w-[200px] cursor-pointer hover:bg-gray-800/50 select-none transition">Sub-Proyek <span id="main-sort-subProyek">↕</span></th>
+                                <th onclick="sortMainTable('volume')" class="p-3.5 text-right min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">Vol Rencana (m) <span id="main-sort-volume">↕</span></th>
+                                <th onclick="sortMainTable('volumeMC0')" class="p-3.5 text-right min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">Vol MC-0 (m) <span id="main-sort-volumeMC0">↕</span></th>
+                                <th onclick="sortMainTable('volAktual')" class="p-3.5 text-right min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">Vol Aktual (m) <span id="main-sort-volAktual">↕</span></th>
+                                <th onclick="sortMainTable('progress')" class="p-3.5 text-center bg-gray-900/40 min-w-[80px] cursor-pointer hover:bg-gray-800/50 select-none transition">Progress (%) <span id="main-sort-progress">↕</span></th>
+                                <th onclick="sortMainTable('rab')" class="p-3.5 text-right text-amber-400 min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">RAB (Rp Juta) <span id="main-sort-rab">↕</span></th>
+                                <th onclick="sortMainTable('vowd')" class="p-3.5 text-right text-purple-400 min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">VOWD (Rp Juta) <span id="main-sort-vowd">↕</span></th>
+                                <th onclick="sortMainTable('rna')" class="p-3.5 text-right text-cyan-400 min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">RNA (Rp Juta) <span id="main-sort-rna">↕</span></th>
+                                <th onclick="sortMainTable('statusQ')" class="p-3.5 font-medium min-w-[110px] cursor-pointer hover:bg-gray-800/50 select-none transition">Status Aktual <span id="main-sort-statusQ">↕</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-gray-800 bg-[#111726]">
+                            <tr class="text-gray-500 text-center"><td colspan="12" class="p-8 font-medium">Awaiting security validation parameters before initialization...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- FULL SCREEN INTERACTIVE POPUP MODAL -->
+    <div id="statusPopupModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-2 md:p-4 transition-opacity duration-200">
+        <div class="bg-[#111726] border border-gray-800 rounded-xl w-full max-w-[1550px] h-[95vh] md:h-auto max-h-[95vh] md:max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="px-4 py-4 md:px-6 border-b border-gray-800 bg-[#161f33] flex justify-between items-center gap-2">
+                <div class="min-w-0">
+                    <h3 id="modalTitle" class="text-sm md:text-base font-bold text-white flex items-center gap-2 truncate">
+                        <span class="w-2.5 h-5 bg-cyan-500 rounded-sm inline-block shrink-0"></span>
+                        Filtered Programs List
+                    </h3>
+                    <p id="modalSubtitle" class="text-[11px] md:text-xs text-gray-400 mt-0.5 truncate">Greenfield Segment breakdown filtered sub-portfolio view</p>
+                </div>
+                <button onclick="closeStatusPopup()" class="text-gray-400 hover:text-white bg-gray-800/60 hover:bg-gray-800 p-2 rounded-lg transition text-xs font-semibold px-3 py-1.5 shrink-0">
+                    Close [X]
+                </button>
+            </div>
+            <!-- Modal Body Table Scroll Panel -->
+            <div class="overflow-x-auto overflow-y-auto p-3 md:p-6 flex-1 bg-[#0d121f]">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-[#0e1424] text-gray-300 uppercase tracking-wider font-semibold border-b border-gray-700 sticky top-0 z-10 shadow-sm">
+                            <th onclick="sortModalTable('proyek')" class="p-3.5 min-w-[135px] cursor-pointer hover:bg-gray-800/50 select-none transition">Proyek <span id="modal-sort-proyek">↕</span></th>
+                            <th onclick="sortModalTable('rawTokDate')" class="p-3.5 min-w-[85px] cursor-pointer hover:bg-gray-800/50 select-none transition">Jadwal TOK <span id="modal-sort-rawTokDate">↕</span></th>
+                            <th onclick="sortModalTable('schedule')" class="p-3.5 min-w-[120px] cursor-pointer hover:bg-gray-800/50 select-none transition">Kategori <span id="modal-sort-schedule">↕</span></th>
+                            <th onclick="sortModalTable('subProyek')" class="p-3.5 min-w-[200px] cursor-pointer hover:bg-gray-800/50 select-none transition">Sub-Proyek <span id="modal-sort-subProyek">↕</span></th>
+                            <th onclick="sortModalTable('volumeMC0')" class="p-3.5 text-right min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">Vol MC-0 (m) <span id="modal-sort-volumeMC0">↕</span></th>
+                            <th onclick="sortModalTable('volAktual')" class="p-3.5 text-right min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">Vol Aktual (m) <span id="modal-sort-volAktual">↕</span></th>
+                            <th onclick="sortModalTable('progress')" class="p-3.5 text-center bg-gray-900/40 min-w-[80px] cursor-pointer hover:bg-gray-800/50 select-none transition">Progress (%) <span id="modal-sort-progress">↕</span></th>
+                            <th onclick="sortModalTable('rab')" class="p-3.5 text-right text-amber-400 min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">RAB (Rp Juta) <span id="modal-sort-rab">↕</span></th>
+                            <th onclick="sortModalTable('vowd')" class="p-3.5 text-right text-purple-400 min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">VOWD (Rp Juta) <span id="modal-sort-vowd">↕</span></th>
+                            <th onclick="sortModalTable('rna')" class="p-3.5 text-right text-cyan-400 min-w-[90px] cursor-pointer hover:bg-gray-800/50 select-none transition">RNA (Rp Juta) <span id="modal-sort-rna">↕</span></th>
+                            <th id="modalDynamicDateHeader" onclick="sortModalTable('customDate')" class="p-3.5 text-center text-blue-400 bg-blue-950/20 font-bold min-w-[140px] cursor-pointer hover:bg-gray-800/50 select-none transition">MC-100 Date <span id="modal-sort-customDate">↕</span></th>
+                            <th onclick="sortModalTable('statusQ')" class="p-3.5 font-medium min-w-[110px] cursor-pointer hover:bg-gray-800/50 select-none transition">Status Aktual <span id="modal-sort-statusQ">↕</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalTableBody" class="divide-y divide-gray-800/60 bg-[#111726]">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRYPTOGRAPHIC SECURE LOGIN CONTROLLER ENGINE
+        const HASHED_PASS_KEY = "ed5b9b3865998ca08f98b0810e7be69d46bb6d4d1a1939153cab8d57ae4f6af4"; // 'abjgreenfield'
+        const MASTER_USER_ID = "admin";
+
+        // Scrambled Base64 filename strings (hidden from basic text searches)
+	const _0xba5e64 = [
+    		"RGF0YWJhc2UgTUsgR3JlZW5maWVsZC54bHN4", 
+    		"S3Jvbm9sb2dpcyBLZXRlcmxhbWJhdGFuIFRPSy54bHN4"
+	];
+
+	// The browser safely decodes them in memory only when required
+	const REPO_STATIC_FILES = _0xba5e64.map(hash => atob(hash));
+
+	// Updated clean filenames mapping matrix variables - changed above
+        //const REPO_STATIC_FILES = [
+        //    "xxx.xlsx",
+        //    "xxx.xlsx"
+        //];
+
+        async function computeSHA256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function handleAuthGateCheck(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('authUsername').value.trim();
+            const passInput = document.getElementById('authPassword').value;
+            const errorAlert = document.getElementById('loginError');
+
+            const computedHash = await computeSHA256(passInput);
+
+            if (userInput === MASTER_USER_ID && computedHash === HASHED_PASS_KEY) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('dashboardContainer').classList.remove('hidden');
+                errorAlert.classList.add('hidden');
+                
+                fetchRepositoryDataSources();
+            } else {
+                errorAlert.classList.remove('hidden');
+                document.getElementById('authPassword').value = "";
+            }
+        }
+
+        // Core Global Matrix Context State Parameters
+        let globalRawData = [];
+        let currentlyFilteredDataset = []; 
+        let currentModalDataset = [];
+        let currentModalTypeKey = "";
+        let chartInstanceVol = null;
+        let chartInstanceFin = null;
+        let delayChronologyMap = {}; 
+
+        let mainSortCol = null;
+        let mainSortDir = 'asc';
+        let modalSortCol = null;
+        let modalSortDir = 'asc';
+
+        const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeStatusPopup(); });
+        document.getElementById('statusPopupModal').addEventListener('click', closeStatusPopup);
+
+        async function fetchRepositoryDataSources() {
+            const loaderBanner = document.getElementById('asyncLoaderStatus');
+            loaderBanner.className = "p-3.5 mb-6 rounded-xl border font-semibold text-xs text-cyan-400 bg-cyan-950/20 border-cyan-800/40 block animate-pulse";
+            loaderBanner.textContent = "⚡ Initializing automated portfolio repository integration sync... Downloading master sheets from server path...";
+            
+            globalRawData = [];
+            delayChronologyMap = {};
+
+            try {
+                for (let filePath of REPO_STATIC_FILES) {
+                    const response = await fetch(`./${encodeURIComponent(filePath)}`);
+                    if (!response.ok) {
+                        throw new Error(`Server file target could not be loaded at: ${filePath}`);
+                    }
+                    const arrayBuffer = await response.arrayBuffer();
+                    
+                    const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array', raw: true});
+                    
+                    workbook.SheetNames.forEach(sheetName => {
+                        let cleanSheetName = sheetName.trim().toLowerCase();
+                        
+                        if (['apr 26', 'okt 25', 'apr 25', 'okt-26'].includes(cleanSheetName)) {
+                            const worksheet = workbook.Sheets[sheetName];
+                            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: true});
+                            parseChronologyMatrix(json, sheetName);
+                        }
+                        
+                        if (cleanSheetName === 'database mk') {
+                            const worksheet = workbook.Sheets[sheetName];
+                            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: true});
+                            ingestRows(json);
+                        }
+                    });
+                }
+
+                loaderBanner.className = "p-3.5 mb-6 rounded-xl border font-semibold text-xs text-emerald-400 bg-emerald-950/20 border-emerald-800/40 block";
+                loaderBanner.textContent = `✔ Consolidated portfolio parsed smoothly! Successfully mapped ${globalRawData.length} strategic records down from source files.`;
+                
+                populateSlicers();
+                applyFilters();
+
+                setTimeout(() => { loaderBanner.classList.add('hidden'); }, 4500);
+
+            } catch (err) {
+                console.error(err);
+                loaderBanner.className = "p-3.5 mb-6 rounded-xl border font-semibold text-xs text-rose-400 bg-rose-950/20 border-rose-900/40 block";
+                loaderBanner.textContent = `✖ Automation Engine Failure: ${err.message}. Please use the manual fallback override tool upper-right to feed dashboard.`;
+            }
+        }
+
+        function processUploadedFiles() {
+            const fileInput = document.getElementById('excelFiles');
+            if (fileInput.files.length === 0) return;
+
+            globalRawData = [];
+            delayChronologyMap = {}; 
+            let filesLoaded = 0;
+
+            Array.from(fileInput.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array', raw: true});
+                    
+                    workbook.SheetNames.forEach(sheetName => {
+                        let cleanSheetName = sheetName.trim().toLowerCase();
+                        if (['apr 26', 'okt 25', 'apr 25', 'okt-26'].includes(cleanSheetName)) {
+                            const worksheet = workbook.Sheets[sheetName];
+                            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: true});
+                            parseChronologyMatrix(json, sheetName);
+                        }
+                        if (cleanSheetName === 'database mk') { 
+                            const worksheet = workbook.Sheets[sheetName];
+                            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: true});
+                            ingestRows(json);
+                        }
+                    });
+
+                    filesLoaded++;
+                    if (filesLoaded === fileInput.files.length) {
+                        populateSlicers();
+                        applyFilters();
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function parseChronologyMatrix(json, sheetName) {
+            let headerRowIndex = -1;
+            for (let r = 0; r < Math.min(json.length, 20); r++) {
+                if (json[r] && json[r].some(cell => String(cell).trim().toLowerCase() === 'kode program')) {
+                    headerRowIndex = r;
+                    break;
+                }
+            }
+            if (headerRowIndex === -1) headerRowIndex = 0;
+            const headers = json[headerRowIndex] || [];
+            const cE = headers.findIndex(h => String(h).trim().toLowerCase() === 'kode program');
+            const cN = headers.findIndex(h => String(h).trim().toLowerCase().includes('kategori keterlambatan'));
+            const pCol = headers.findIndex(h => String(h).trim().toLowerCase().includes('kronologis keterlambatan'));
+            const qCol = headers.findIndex(h => String(h).trim().toLowerCase().includes('kondisi saat ini'));
+            const rCol = headers.findIndex(h => String(h).trim().toLowerCase().includes('recovery plan'));
+
+            const idxE = cE > -1 ? cE : 4; const idxN = cN > -1 ? cN : 13;
+            const idxP = pCol > -1 ? pCol : 15; const idxQ = qCol > -1 ? qCol : 16; const idxR = rCol > -1 ? rCol : 17;
+
+            for (let i = headerRowIndex + 1; i < json.length; i++) {
+                const row = json[i];
+                if (!row || !row[idxE]) continue;
+                let code = String(row[idxE]).trim();
+                if (!code || code.toLowerCase().includes('kode program') || code.toLowerCase().includes('total')) continue;
+
+                delayChronologyMap[code] = {
+                    sheet: sheetName,
+                    kategori: row[idxN] ? String(row[idxN]).trim() : '',
+                    kronologis: row[idxP] ? String(row[idxP]).trim() : '',
+                    kondisi: row[idxQ] ? String(row[idxQ]).trim() : '',
+                    recovery: row[idxR] ? String(row[idxR]).trim() : ''
+                };
+            }
+        }
+
+        function parseCurrency(val) {
+            if (val === undefined || val === null || val === '') return 0;
+            if (typeof val === 'number') return val;
+            let clear = val.toString().replace(/[^0-9.,-]/g, '');
+            if (clear.includes(',') && clear.includes('.')) {
+                clear = clear.replace(/,/g, '');
+            } else if (clear.includes(',')) {
+                clear = clear.replace(/,/g, '.');
+            }
+            let num = parseFloat(clear);
+            return isNaN(num) ? 0 : num;
+        }
+
+        function formatExcelSerialToLongDate(val) {
+            let numericVal = parseInt(val, 10);
+            if (isNaN(numericVal) || numericVal <= 0) return '-';
+            let d = new Date((numericVal - 25569) * 86400 * 1000);
+            if (!d || isNaN(d.getTime())) return '-';
+            let day = String(d.getDate()).padStart(2, '0');
+            let mmm = monthsShort[d.getMonth()];
+            let fullYear = d.getFullYear();
+            return `${day} ${mmm} ${fullYear}`;
+        }
+
+        function formatTokenDate(val) {
+            if (!val) return 'N/A';
+            if (typeof val === 'number') {
+                let d = new Date((val - 25569) * 86400 * 1000);
+                if(!isNaN(d.getTime())) {
+                    return monthsShort[d.getMonth()] + " " + d.getFullYear();
+                }
+            }
+            let str = String(val).trim();
+            let matches = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (matches) {
+                let mIdx = parseInt(matches[2], 10) - 1;
+                return monthsShort[mIdx] + " " + matches[1];
+            }
+            return str;
+        }
+
+        function toggleDetailRow(index) {
+            const el = document.getElementById('detail-row-' + index);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        function toggleModalDetailRow(index) {
+            const el = document.getElementById('modal-detail-row-' + index);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        function getSortValue(obj, colName) {
+            if (colName === 'progress') {
+                return obj.volumeMC0 > 0 ? (obj.volAktual / obj.volumeMC0) : 0;
+            }
+            if (colName === 'rawTokDate') {
+                return obj.rawTokDate ? obj.rawTokDate.getTime() : 0;
+            }
+            if (colName === 'customDate') {
+                return obj.rawSortDate ? obj.rawSortDate.getTime() : (obj.customDate || '');
+            }
+            return obj[colName];
+        }
+
+        function compareValues(valA, valB, dir) {
+            if (valA === undefined || valA === null) valA = '';
+            if (valB === undefined || valB === null) valB = '';
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            if (valA < valB) return dir === 'asc' ? -1 : 1;
+            if (valA > valB) return dir === 'asc' ? 1 : -1;
+            return 0;
+        }
+
+        function updateHeaderArrows(tableType, activeCol, direction) {
+            const symbol = direction === 'asc' ? ' ▲' : ' ▼';
+            if (tableType === 'main') {
+                const cols = ['proyek', 'rawTokDate', 'schedule', 'subProyek', 'volume', 'volumeMC0', 'volAktual', 'progress', 'rab', 'vowd', 'rna', 'statusQ'];
+                cols.forEach(c => {
+                    const el = document.getElementById(`main-sort-${c}`);
+                    if (el) el.textContent = c === activeCol ? symbol : ' ↕';
+                });
+            } else {
+                const cols = ['proyek', 'rawTokDate', 'schedule', 'subProyek', 'volumeMC0', 'volAktual', 'progress', 'rab', 'vowd', 'rna', 'customDate', 'statusQ'];
+                cols.forEach(c => {
+                    const el = document.getElementById(`modal-sort-${c}`);
+                    if (el) el.textContent = c === activeCol ? symbol : ' ↕';
+                });
+            }
+        }
+
+        function sortMainTable(colName) {
+            if (mainSortCol === colName) {
+                mainSortDir = mainSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                mainSortCol = colName;
+                mainSortDir = 'asc';
+            }
+            currentlyFilteredDataset.sort((a, b) => compareValues(getSortValue(a, colName), getSortValue(b, colName), mainSortDir));
+            renderTable(currentlyFilteredDataset);
+            updateHeaderArrows('main', colName, mainSortDir);
+        }
+
+        function sortModalTable(colName) {
+            if (modalSortCol === colName) {
+                modalSortDir = modalSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                modalSortCol = colName;
+                modalSortDir = 'asc';
+            }
+            currentModalDataset.sort((a, b) => compareValues(getSortValue(a, colName), getSortValue(b, colName), modalSortDir));
+            renderModalTable();
+            updateHeaderArrows('modal', colName, modalSortDir);
+        }
+
+        function ingestRows(matrix) {
+            let headerRowIndex = -1;
+            for(let r=0; r < Math.min(matrix.length, 20); r++) {
+                if (matrix[r] && matrix[r].some(cell => String(cell).trim().toLowerCase() === 'proyek')) {
+                    headerRowIndex = r;
+                    break;
+                }
+            }
+            if (headerRowIndex === -1) headerRowIndex = 4; 
+            const headers = matrix[headerRowIndex] || [];
+            
+            const idx = {
+                proyek: headers.findIndex(h => String(h).trim().toLowerCase() === 'proyek'),
+                kodeProgram: headers.findIndex(h => String(h).trim().toLowerCase() === 'kode program'),
+                jadwalTok: headers.findIndex(h => String(h).trim().toLowerCase().includes('jadwal tok') || String(h).trim().toLowerCase() === 'tok'),
+                schedule: 7,    
+                subProyek: headers.findIndex(h => String(h).trim().toLowerCase() === 'nama program' || String(h).trim().toLowerCase() === 'sub-proyek'),
+                statusAktual: 16, 
+                volume: 13,     
+                volumeMC0: 21,  
+                volAktual: 22,  
+                rab: headers.findIndex(h => String(h).trim().toLowerCase().includes('nilai rab') || String(h).trim().toLowerCase().includes('rab jaringan')),
+                vowd: 99,       
+                rna: 100,
+                dpppActualRaw: headers.findIndex(h => String(h).trim().toLowerCase().includes('aktual submit dppp'))
+            };
+
+            if (idx.dpppActualRaw === -1) idx.dpppActualRaw = 229;
+
+            for (let i = headerRowIndex + 1; i < matrix.length; i++) {
+                const row = matrix[i];
+                if (!row || row.length === 0 || !row[idx.proyek > -1 ? idx.proyek : 0]) continue;
+
+                let pName = idx.proyek > -1 ? row[idx.proyek] : '';
+                if (!pName || pName === 'Proyek' || String(pName).includes('TOTAL') || String(pName) === 'undefined') continue;
+
+                let rawScheduleValue = String(row[idx.schedule] || '').trim();
+                let displaySchedule = "Non Master Schedule";
+                if (rawScheduleValue.toLowerCase() === 'ms' || rawScheduleValue.toLowerCase() === 'master schedule') {
+                    displaySchedule = "Master Schedule";
+                }
+
+                let codeProg = idx.kodeProgram > -1 ? String(row[idx.kodeProgram]).trim() : (row[4] ? String(row[4]).trim() : '');
+
+                let tokVal = idx.jadwalTok > -1 ? row[idx.jadwalTok] : null;
+                let rawTokDate = null;
+                if (typeof tokVal === 'number') {
+                    rawTokDate = new Date((tokVal - 25569) * 86400 * 1000);
+                } else if (tokVal) {
+                    let parsed = Date.parse(String(tokVal).trim());
+                    if (!isNaN(parsed)) rawTokDate = new Date(parsed);
+                }
+
+                let dpppVal = row[idx.dpppActualRaw];
+                let rawDpppDate = null;
+                if (typeof dpppVal === 'number') {
+                    rawDpppDate = new Date((dpppVal - 25569) * 86400 * 1000);
+                } else if (dpppVal) {
+                    let parsed = Date.parse(String(dpppVal).trim());
+                    if (!isNaN(parsed)) rawDpppDate = new Date(parsed);
+                }
+
+                let record = {
+                    proyek: String(pName).trim(),
+                    kodeProgram: codeProg,
+                    jadwalTok: formatTokenDate(row[idx.jadwalTok]),
+                    schedule: displaySchedule,
+                    subProyek: idx.subProyek > -1 && row[idx.subProyek] ? String(row[idx.subProyek]).trim() : 'Unnamed Segment Log',
+                    statusQ: String(row[idx.statusAktual] || '').trim(),
+                    volume: parseCurrency(row[idx.volume]),
+                    volumeMC0: parseCurrency(row[idx.volumeMC0]),
+                    volAktual: parseCurrency(row[idx.volAktual]),
+                    rab: idx.rab > -1 ? parseCurrency(row[idx.rab]) : 0,
+                    vowd: parseCurrency(row[idx.vowd]),
+                    rna: parseCurrency(row[idx.rna]),
+                    dpppActualRaw: row[idx.dpppActualRaw],
+                    rawTokDate: rawTokDate,
+                    rawDpppDate: rawDpppDate
+                };
+                globalRawData.push(record);
+            }
+        }
+
+        function populateSlicers() {
+            const proySet = new Set(['ALL']); const katSet = new Set(['ALL']); const tokSet = new Set(['ALL']);
+            globalRawData.forEach(r => {
+                if (r.proyek) proySet.add(r.proyek);
+                if (r.schedule) katSet.add(r.schedule);
+                if (r.jadwalTok) tokSet.add(r.jadwalTok);
+            });
+            updateSlicerDOM('slicerProyek', proySet);
+            updateSlicerDOM('slicerKategori', katSet);
+            updateSlicerDOM('slicerTOK', tokSet);
+        }
+
+        function updateSlicerDOM(id, valSet) {
+            const select = document.getElementById(id); const currentVal = select.value;
+            select.innerHTML = '';
+            valSet.forEach(val => {
+                const opt = document.createElement('option'); opt.value = val;
+                opt.textContent = val === 'ALL' ? (id === 'slicerProyek' ? '-- Semua Proyek --' : id === 'slicerKategori' ? '-- Semua Kategori --' : '-- Semua Jadwal TOK --') : val;
+                select.appendChild(opt);
+            });
+            if (valSet.has(currentVal)) select.value = currentVal;
+            else select.value = 'ALL';
+        }
+
+        function applyFilters() {
+            const filProyek = document.getElementById('slicerProyek').value || 'ALL';
+            const filKategori = document.getElementById('slicerKategori').value || 'ALL';
+            const filTOK = document.getElementById('slicerTOK').value || 'ALL';
+            const flagExcludeCancelled = document.getElementById('excludeCancelled').checked;
+            const searchStr = document.getElementById('globalTableSearch').value.trim().toLowerCase();
+
+            currentlyFilteredDataset = globalRawData.filter(r => {
+                const matchProyek = (filProyek === 'ALL' || r.proyek === filProyek);
+                const matchKategori = (filKategori === 'ALL' || r.schedule === filKategori);
+                const matchTOK = (filTOK === 'ALL' || r.jadwalTok === filTOK);
+                const matchExclusion = !(flagExcludeCancelled && r.statusQ.toUpperCase().includes('BATAL / CANCEL'));
+                
+                let matchText = true;
+                if (searchStr) {
+                    const orBlocks = searchStr.split(',').map(block => block.trim()).filter(block => block.length > 0);
+                    if (orBlocks.length > 0) {
+                        matchText = orBlocks.some(block => {
+                            const andTerms = block.split(/\s+/).filter(term => term.length > 0);
+                            return andTerms.every(term => 
+                                r.proyek.toLowerCase().includes(term) ||
+                                r.jadwalTok.toLowerCase().includes(term) ||
+                                r.schedule.toLowerCase().includes(term) ||
+                                r.subProyek.toLowerCase().includes(term) ||
+                                r.statusQ.toLowerCase().includes(term)
+                            );
+                        });
+                    }
+                }
+                
+                return matchProyek && matchKategori && matchTOK && matchExclusion && matchText;
+            });
+
+            if (mainSortCol) {
+                currentlyFilteredDataset.sort((a, b) => compareValues(getSortValue(a, mainSortCol), getSortValue(b, mainSortCol), mainSortDir));
+            }
+
+            document.getElementById('rowCountLabel').textContent = `Showing: ${currentlyFilteredDataset.length} / ${globalRawData.length} Records`;
+            calculateMetrics(currentlyFilteredDataset);
+            renderTable(currentlyFilteredDataset);
+            renderCharts(currentlyFilteredDataset);
+        }
+
+        function calculateMetrics(data) {
+            let totalVolRencana = 0; let totalVolMC0 = 0; let totalVolAktual = 0;
+            let totalRAB = 0; let totalRNA = 0; let totalVOWD = 0;
+
+            let totalRecords = data.length;
+            let countBatal = 0; let countMC0 = 0; let countPrep = 0;
+            let countOngoing = 0; let countFinished = 0; let countMC100 = 0; let countDPPP = 0;
+
+            let dpppOnTime = 0;
+            let dpppDelay90 = 0;
+            let dpppDelayOver90 = 0;
+
+            data.forEach(r => {
+                totalVolRencana += r.volume; totalVolMC0 += r.volumeMC0; totalVolAktual += r.volAktual;
+                totalRAB += r.rab; totalRNA += r.rna; totalVOWD += r.vowd;
+
+                let st = r.statusQ.toUpperCase();
+                if (st.includes('BATAL') || st.includes('CANCEL')) { countBatal++; }
+                else if (st === 'MC-0' || st === 'MC0') { countMC0++; }
+                else if (st === 'PERSIAPAN' || st === 'PCM' || st.includes('PROSES MOS') || st.includes('PO JASA BPM')) { countPrep++; }
+                else if (st.includes('TES COM') || st.includes('TES COMM')) { countFinished++; }
+                else if (st === 'MC-100' || st === 'MC100') { countMC100++; }
+                else if (st === 'DPPP') { 
+                    countDPPP++; 
+                    
+                    if (r.rawTokDate && r.rawDpppDate) {
+                        let cleanTok = new Date(r.rawTokDate.getFullYear(), r.rawTokDate.getMonth(), r.rawTokDate.getDate());
+                        let cleanDppp = new Date(r.rawDpppDate.getFullYear(), r.rawDpppDate.getMonth(), r.rawDpppDate.getDate());
+
+                        let diffDays = Math.round((cleanDppp.getTime() - cleanTok.getTime()) / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays <= 0) {
+                            dpppOnTime++;
+                        } else if (diffDays <= 90) {
+                            dpppDelay90++;
+                        } else {
+                            dpppDelayOver90++;
+                        }
+                    } else {
+                        dpppOnTime++;
+                    }
+                }
+                else { countOngoing++; }
+            });
+
+            document.getElementById('cntTotal').textContent = totalRecords.toLocaleString('id-ID');
+            document.getElementById('cntBatal').textContent = countBatal.toLocaleString('id-ID');
+            document.getElementById('cntMC0').textContent = countMC0.toLocaleString('id-ID');
+            document.getElementById('cntPrep').textContent = countPrep.toLocaleString('id-ID');
+            document.getElementById('cntOngoing').textContent = countOngoing.toLocaleString('id-ID');
+            document.getElementById('cntFinished').textContent = countFinished.toLocaleString('id-ID');
+            document.getElementById('cntMC100').textContent = countMC100.toLocaleString('id-ID');
+            document.getElementById('cntDPPP').textContent = countDPPP.toLocaleString('id-ID');
+
+            document.getElementById('subDpppOnTime').textContent = dpppOnTime.toLocaleString('id-ID');
+            document.getElementById('subDpppDelay90').textContent = dpppDelay90.toLocaleString('id-ID');
+            document.getElementById('subDpppDelayOver90').textContent = dpppDelayOver90.toLocaleString('id-ID');
+
+            document.getElementById('metricVolRencana').textContent = Math.round(totalVolRencana).toLocaleString('id-ID');
+            document.getElementById('subMetricVolMC0').textContent = Math.round(totalVolMC0).toLocaleString('id-ID') + ' m';
+            document.getElementById('metricVolAktual').textContent = Math.round(totalVolAktual).toLocaleString('id-ID');
+            
+            let percentageInstalled = totalVolMC0 > 0 ? ((totalVolAktual / totalVolMC0) * 100).toFixed(1) : "0.0";
+            document.getElementById('metricVolProg').textContent = `${percentageInstalled}%`;
+
+            let rabInMillions = Math.round(totalRAB / 1000000);
+            let vowdInMillions = Math.round(totalVOWD / 1000000);
+            let rnaInMillions = Math.round(totalRNA / 1000000);
+
+            document.getElementById('metricRAB').textContent = 'Rp ' + rabInMillions.toLocaleString('id-ID') + ' Juta';
+            document.getElementById('metricVOWD').textContent = 'Rp ' + vowdInMillions.toLocaleString('id-ID') + ' Juta';
+            let vowdProg = totalRAB > 0 ? ((totalVOWD / totalRAB) * 100).toFixed(1) : "0.0";
+            document.getElementById('metricVOWDPercentage').textContent = `${vowdProg}% to RAB`;
+
+            document.getElementById('metricRNA').textContent = 'Rp ' + rnaInMillions.toLocaleString('id-ID') + ' Juta';
+            let rnaProg = totalRAB > 0 ? ((totalRNA / totalRAB) * 100).toFixed(1) : "0.0";
+            document.getElementById('metricRNAPercentage').textContent = `${rnaProg}%`;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr class="text-gray-500 text-center"><td colspan="12" class="p-8">No records matching search query criteria.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map((r, i) => {
+                let progressPercentage = r.volumeMC0 > 0 ? ((r.volAktual / r.volumeMC0) * 100).toFixed(1) : "0.0";
+                let progressBadgeColor = "text-gray-400 bg-gray-900/30";
+                if (parseFloat(progressPercentage) >= 100) progressBadgeColor = "text-emerald-400 bg-emerald-950/40 border border-emerald-800/40";
+                else if (parseFloat(progressPercentage) > 0) progressBadgeColor = "text-cyan-400 bg-cyan-950/40 border border-cyan-800/30";
+
+                let delayData = delayChronologyMap[r.kodeProgram] || null;
+                let detailRowHtml = '';
+                let logBadge = '';
+
+                if (delayData) {
+                    logBadge = `<span class="ml-2 px-1.5 py-0.5 rounded text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold uppercase tracking-wide">Logs</span>`;
+                    
+                    detailRowHtml = `
+                    <tr id="detail-row-${i}" class="hidden bg-[#0a0d16] border-b border-gray-800/50">
+                        <td colspan="12" class="p-4 text-xs text-gray-300">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 max-w-7xl mx-auto whitespace-normal text-left">
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-gray-800 shadow-inner md:col-span-3">
+                                    <div class="flex justify-between items-center mb-1.5">
+                                        <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Kategori Keterlambatan</span>
+                                        <span class="text-[9px] text-gray-500 font-mono font-bold uppercase bg-slate-950 px-1 rounded">${delayData.sheet}</span>
+                                    </div>
+                                    <p class="text-gray-200 leading-relaxed bg-[#0b0f19]/60 p-2.5 rounded border border-gray-900/60 whitespace-pre-line">${delayData.kategori || '<span class="text-gray-600 italic">No explicit category found.</span>'}</p>
+                                </div>
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-gray-800 shadow-inner md:col-span-9">
+                                    <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block mb-1.5">Kronologis Keterlambatan</span>
+                                    <p class="text-gray-200 leading-relaxed bg-[#0b0f19]/60 p-2.5 rounded border border-gray-900/60 whitespace-pre-line tracking-wide">${delayData.kronologis || '<span class="text-gray-600 italic">No breakdown chronologies tracked.</span>'}</p>
+                                </div>
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-gray-800 shadow-inner md:col-span-9">
+                                    <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block mb-1.5">Kondisi Saat Ini</span>
+                                    <p class="text-gray-200 leading-relaxed bg-[#0b0f19]/60 p-2.5 rounded border border-gray-900/60 whitespace-pre-line">${delayData.kondisi || '<span class="text-gray-600 italic">No localized updates noted.</span>'}</p>
+                                </div>
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-emerald-950/40 bg-gradient-to-br from-[#131b2e] to-emerald-950/10 md:col-span-3 shadow-md">
+                                    <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block mb-1.5">Recovery Plan</span>
+                                    <p class="text-emerald-50 leading-relaxed bg-emerald-950/20 p-2.5 rounded border border-emerald-500/10 whitespace-pre-line tracking-wide">${delayData.recovery || '<span class="text-emerald-700 italic">No forward recovery milestones filed.</span>'}</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                } else {
+                    detailRowHtml = `
+                    <tr id="detail-row-${i}" class="hidden bg-[#0a0d16] border-b border-gray-800/50">
+                        <td colspan="12" class="p-4 text-center text-gray-600 italic font-mono">No matching delay chronology tracking metrics identified across sheets for program code: ${r.kodeProgram || '-'}</td>
+                    </tr>`;
+                }
+
+                return `
+                <tr class="hover:bg-gray-800/40 transition border-b border-gray-800/40 cursor-pointer select-none" onclick="toggleDetailRow(${i})">
+                    <td class="p-3 text-gray-200 font-medium">${r.proyek}</td>
+                    <td class="p-3 text-gray-400 font-mono">${r.jadwalTok}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-[#1d2d44] text-blue-400">${r.schedule}</span></td>
+                    <td class="p-3 text-gray-300 font-light max-w-xs truncate" title="${r.subProyek}">
+                        <div class="flex items-center justify-between">
+                            <span class="truncate">${r.subProyek}</span>
+                            ${logBadge}
+                        </div>
+                    </td>
+                    <td class="p-3 text-right font-mono text-gray-400">${Math.round(r.volume).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right font-mono text-indigo-400/90">${Math.round(r.volumeMC0).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right font-mono text-emerald-400">${Math.round(r.volAktual).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-center font-mono text-xs font-semibold ${progressBadgeColor}">${progressPercentage}%</td>
+                    <td class="p-3 text-right font-mono text-amber-400/90">${Math.round(r.rab / 1000000).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right font-mono text-purple-400/90">${Math.round(r.vowd / 1000000).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right font-mono text-cyan-400/90">${Math.round(r.rna / 1000000).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-gray-400 font-semibold text-[11px]">${r.statusQ || 'N/A'}</td>
+                </tr>
+                ${detailRowHtml}
+            `}).join('');
+        }
+
+        function openStatusPopup(statusTypeKey) {
+            if (globalRawData.length === 0) return; 
+            currentModalTypeKey = statusTypeKey;
+            
+            let filteredPopupRows = [];
+            let explicitTitleLabel = "";
+
+            switch (statusTypeKey) {
+                case 'ALL':
+                    filteredPopupRows = [...currentlyFilteredDataset];
+                    explicitTitleLabel = "Total Filtered Programs Portfolio";
+                    break;
+                case 'BATAL':
+                    filteredPopupRows = currentlyFilteredDataset.filter(r => r.statusQ.toUpperCase().includes('BATAL') || r.statusQ.toUpperCase().includes('CANCEL'));
+                    explicitTitleLabel = "Batal / Cancelled Project Log Sub-portfolio";
+                    break;
+                case 'PREP': 
+                    filteredPopupRows = currentlyFilteredDataset.filter(r => {
+                        let st = r.statusQ.toUpperCase();
+                        return st === 'PERSIAPAN' || st === 'PCM' || st.includes('PROSES MOS') || st.includes('PO JASA BPM');
+                    });
+                    explicitTitleLabel = "Preparation Phase Portfolio Records";
+                    break;
+                case 'MC0': 
+                    filteredPopupRows = currentlyFilteredDataset.filter(r => r.statusQ.toUpperCase() === 'MC-0' || r.statusQ.toUpperCase() === 'MC0');
+                    explicitTitleLabel = "Mutual Check 0% (MC-0 Status) Projects List";
+                    break;
+                case 'ONGOING': 
+                    filteredPopupRows = currentlyFilteredDataset.filter(r => {
+                        let st = r.statusQ.toUpperCase();
+                        return !st.includes('BATAL') && !st.includes('CANCEL') && 
+                               st !== 'MC-0' && st !== 'MC0' && 
+                               st !== 'PERSIAPAN' && st !== 'PCM' && !st.includes('PROSES MOS') && !st.includes('PO JASA BPM') && 
+                               !st.includes('TES COM') && !st.includes('TES COMM') && 
+                               st !== 'MC-100' && st !== 'MC100' && 
+                               st !== 'DPPP';
+                    });
+                    explicitTitleLabel = "Active Ongoing Field Execution Construction Log";
+                    break;
+                case 'FINISHED': 
+                    filteredPopupRows = currentlyFilteredDataset.filter(r => r.statusQ.toUpperCase().includes('TES COM') || r.statusQ.toUpperCase().includes('TES COMM'));
+                    explicitTitleLabel = "Finished Construction (Testing & Commissioning Phase)";
+                    break;
+                case 'MC100': 
+                    filteredPopupRows = currentlyFilteredDataset.filter(r => r.statusQ.toUpperCase() === 'MC-100' || r.statusQ.toUpperCase() === 'MC100');
+                    explicitTitleLabel = "Mutual Check 100% (MC-100 Status Asset Records)";
+                    break;
+                case 'DPPP': 
+                    filteredPopupRows = currentlyFilteredDataset.filter(r => r.statusQ.toUpperCase() === 'DPPP');
+                    explicitTitleLabel = "DPPP Financial Submission Portfolio List";
+                    break;
+            }
+
+            const dateHeaderElement = document.getElementById('modalDynamicDateHeader');
+            if (statusTypeKey === 'DPPP') {
+                if (dateHeaderElement) dateHeaderElement.textContent = "DPPP Submit Date";
+            } else {
+                if (dateHeaderElement) dateHeaderElement.textContent = "MC-100 Date";
+            }
+
+            document.getElementById('modalTitle').innerHTML = `<span class="w-2.5 h-5 bg-cyan-500 rounded-sm inline-block shrink-0"></span> ${explicitTitleLabel}`;
+            document.getElementById('modalSubtitle').textContent = `Showing exact match breakdown for ${filteredPopupRows.length} active programs`;
+
+            currentModalDataset = filteredPopupRows.map(r => {
+                let delayData = delayChronologyMap[r.kodeProgram] || null;
+                let calculatedDisplayDate = "-";
+                let rawSortDate = null;
+
+                if (statusTypeKey === 'DPPP') {
+                    if (r.dpppActualRaw) {
+                        if (typeof r.dpppActualRaw === 'number') {
+                            calculatedDisplayDate = formatExcelSerialToLongDate(r.dpppActualRaw);
+                            rawSortDate = r.rawDpppDate;
+                        } else {
+                            calculatedDisplayDate = String(r.dpppActualRaw).trim() || "-";
+                            let parsed = Date.parse(calculatedDisplayDate);
+                            if (!isNaN(parsed)) rawSortDate = new Date(parsed);
+                        }
+                    }
+                } else {
+                    if (delayData && delayData.recovery) {
+                        let mc100Match = delayData.recovery.match(/MC[-_\s]*100\s*[:\-]\s*([^\n\r]+)/i);
+                        if (mc100Match) {
+                            calculatedDisplayDate = mc100Match[1].trim();
+                            let firstTokenStr = calculatedDisplayDate.split(',')[0].split(';')[0].trim();
+                            let parsed = Date.parse(firstTokenStr);
+                            if (!isNaN(parsed)) rawSortDate = new Date(parsed);
+                        }
+                    }
+                }
+
+                return {
+                    ...r,
+                    customDate: calculatedDisplayDate,
+                    rawSortDate: rawSortDate
+                };
+            });
+
+            modalSortCol = null;
+            modalSortDir = 'asc';
+            
+            const cols = ['proyek', 'rawTokDate', 'schedule', 'subProyek', 'volumeMC0', 'volAktual', 'progress', 'rab', 'vowd', 'rna', 'customDate', 'statusQ'];
+            cols.forEach(c => {
+                const el = document.getElementById(`modal-sort-${c}`);
+                if (el) el.textContent = ' ↕';
+            });
+
+            renderModalTable();
+
+            const modalEl = document.getElementById('statusPopupModal');
+            modalEl.classList.remove('hidden');
+            modalEl.classList.add('flex');
+        }
+
+        function renderModalTable() {
+            const modalTbody = document.getElementById('modalTableBody');
+            if (currentModalDataset.length === 0) {
+                modalTbody.innerHTML = `<tr><td colspan="12" class="p-8 text-center text-gray-500 font-medium">No program matches this context filter currently.</td></tr>`;
+                return;
+            }
+            modalTbody.innerHTML = currentModalDataset.map((r, i) => {
+                let popupProgress = r.volumeMC0 > 0 ? ((r.volAktual / r.volumeMC0) * 100).toFixed(1) : "0.0";
+                let popBadgeColor = "text-gray-400 bg-gray-900/30";
+                if (parseFloat(popupProgress) >= 100) popBadgeColor = "text-emerald-400 bg-emerald-950/40 border border-emerald-800/40";
+                else if (parseFloat(popupProgress) > 0) popBadgeColor = "text-cyan-400 bg-cyan-950/40 border border-cyan-800/30";
+
+                let delayData = delayChronologyMap[r.kodeProgram] || null;
+                let detailRowHtml = '';
+                let logBadge = '';
+
+                if (delayData) {
+                    logBadge = `<span class="ml-2 px-1.5 py-0.5 rounded text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold uppercase tracking-wide">Logs</span>`;
+                    detailRowHtml = `
+                    <tr id="modal-detail-row-${i}" class="hidden bg-[#0a0d16] border-b border-gray-800/50">
+                        <td colspan="12" class="p-4 text-xs text-gray-300">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 max-w-7xl mx-auto whitespace-normal text-left">
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-gray-800 shadow-inner md:col-span-3">
+                                    <div class="flex justify-between items-center mb-1.5">
+                                        <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Kategori Keterlambatan</span>
+                                        <span class="text-[9px] text-gray-500 font-mono font-bold uppercase bg-slate-950 px-1 rounded">${delayData.sheet}</span>
+                                    </div>
+                                    <p class="text-gray-200 leading-relaxed bg-[#0b0f19]/60 p-2.5 rounded border border-gray-900/60 whitespace-pre-line">${delayData.kategori || '<span class="text-gray-600 italic">No explicit category found.</span>'}</p>
+                                </div>
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-gray-800 shadow-inner md:col-span-9">
+                                    <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block mb-1.5">Kronologis Keterlambatan</span>
+                                    <p class="text-gray-200 leading-relaxed bg-[#0b0f19]/60 p-2.5 rounded border border-gray-900/60 whitespace-pre-line tracking-wide">${delayData.kronologis || '<span class="text-gray-600 italic">No breakdown chronologies tracked.</span>'}</p>
+                                </div>
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-gray-800 shadow-inner md:col-span-9">
+                                    <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block mb-1.5">Kondisi Saat Ini</span>
+                                    <p class="text-gray-200 leading-relaxed bg-[#0b0f19]/60 p-2.5 rounded border border-gray-900/60 whitespace-pre-line">${delayData.kondisi || '<span class="text-gray-600 italic">No localized updates noted.</span>'}</p>
+                                </div>
+                                <div class="p-3 bg-[#131b2e] rounded-lg border border-emerald-950/40 bg-gradient-to-br from-[#131b2e] to-emerald-950/10 md:col-span-3 shadow-md">
+                                    <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block mb-1.5">Recovery Plan</span>
+                                    <p class="text-emerald-50 leading-relaxed bg-emerald-950/20 p-2.5 rounded border border-emerald-500/10 whitespace-pre-line tracking-wide">${delayData.recovery || '<span class="text-emerald-700 italic">No forward recovery milestones filed.</span>'}</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                } else {
+                    detailRowHtml = `
+                    <tr id="modal-detail-row-${i}" class="hidden bg-[#0a0d16] border-b border-gray-800/50">
+                        <td colspan="12" class="p-4 text-center text-gray-600 italic font-mono">No matching delay chronology tracking metrics identified across sheets for program code: ${r.kodeProgram || '-'}</td>
+                    </tr>`;
+                }
+
+                return `
+                    <tr class="hover:bg-gray-800/40 transition border-b border-gray-800/40 cursor-pointer select-none" onclick="toggleModalDetailRow(${i})">
+                        <td class="p-3 text-gray-200 font-semibold">${r.proyek}</td>
+                        <td class="p-3 text-gray-400 font-mono">${r.jadwalTok}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-[#1d2d44] text-blue-400">${r.schedule}</span></td>
+                        <td class="p-3 text-gray-300 font-light max-w-xs truncate" title="${r.subProyek}">
+                            <div class="flex items-center justify-between">
+                                <span class="truncate">${r.subProyek}</span>
+                                ${logBadge}
+                            </div>
+                        </td>
+                        <td class="p-3 text-right font-mono text-indigo-400/90">${Math.round(r.volumeMC0).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-right font-mono text-emerald-400">${Math.round(r.volAktual).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-center font-mono font-bold ${popBadgeColor}">${popupProgress}%</td>
+                        <td class="p-3 text-right font-mono text-amber-400/90">${Math.round(r.rab / 1000000).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-right font-mono text-purple-400/90">${Math.round(r.vowd / 1000000).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-right font-mono text-cyan-400/90">${Math.round(r.rna / 1000000).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-center font-mono font-semibold text-blue-300 bg-blue-950/20">${r.customDate}</td>
+                        <td class="p-3 text-gray-400 font-semibold text-[11px]">${r.statusQ || 'N/A'}</td>
+                    </tr>
+                    ${detailRowHtml}
+                `;
+            }).join('');
+        }
+
+        function closeStatusPopup() {
+            const modalEl = document.getElementById('statusPopupModal');
+            modalEl.classList.remove('flex');
+            modalEl.classList.add('hidden');
+        }
+
+        function renderCharts(data) {
+            let projectGroups = {};
+            data.forEach(r => {
+                let pName = r.proyek || 'Unknown Project';
+                if (!projectGroups[pName]) {
+                    projectGroups[pName] = { targetVol: 0, actualVol: 0, rab: 0, rna: 0, vowd: 0 };
+                }
+                projectGroups[pName].targetVol += r.volumeMC0; 
+                projectGroups[pName].actualVol += r.volAktual;  
+                projectGroups[pName].rab += r.rab;
+                projectGroups[pName].rna += r.rna;
+                projectGroups[pName].vowd += r.vowd;
+            });
+
+            let unsortedLabels = Object.keys(projectGroups);
+            unsortedLabels.sort((a, b) => {
+                let scoreA = a.toUpperCase().includes('JATILUHUR') ? 1 : a.toUpperCase().includes('BUARAN') ? 2 : a.toUpperCase().includes('KARIAN') ? 3 : 4;
+                let scoreB = b.toUpperCase().includes('JATILUHUR') ? 1 : b.toUpperCase().includes('BUARAN') ? 2 : b.toUpperCase().includes('KARIAN') ? 3 : 4;
+                if (scoreA !== scoreB) return scoreA - scoreB;
+                return a.localeCompare(b); 
+            });
+
+            let chartLabels = unsortedLabels;
+            let targetDataset = chartLabels.map(p => Math.round(projectGroups[p].targetVol));
+            let actualDataset = chartLabels.map(p => Math.round(projectGroups[p].actualVol));
+
+            if (chartInstanceVol) chartInstanceVol.destroy();
+            chartInstanceVol = new Chart(document.getElementById('chartVolume').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        { label: 'Volume Target MC-0 (m)', data: targetDataset, backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'Volume Aktual (m)', data: actualDataset, backgroundColor: '#10b981', borderRadius: 4 }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { labels: { color: '#9ca3af' } } },
+                    scales: {
+                        x: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            let datasetRAB = chartLabels.map(p => Math.round(projectGroups[p].rab / 1000000));
+            let datasetVOWD = chartLabels.map(p => Math.round(projectGroups[p].vowd / 1000000));
+            let datasetRNA = chartLabels.map(p => Math.round(projectGroups[p].rna / 1000000));
+
+            if (chartInstanceFin) chartInstanceFin.destroy();
+            chartInstanceFin = new Chart(document.getElementById('chartFinancial').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        { label: 'Nilai RAB Jaringan', data: datasetRAB, backgroundColor: '#f59e0b', borderRadius: 4 },
+                        { label: 'Nilai VOWD', data: datasetVOWD, backgroundColor: '#c084fc', borderRadius: 4 },
+                        { label: 'Nilai RNA', data: datasetRNA, backgroundColor: '#22d3ee', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top', labels: { color: '#9ca3af' } } },
+                    scales: {
+                        x: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
